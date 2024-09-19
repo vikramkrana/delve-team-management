@@ -25,3 +25,23 @@ body {
     text-wrap: balance;
   }
 }
+
+.team-flow .react-flow__node {
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  text-align: left;
+  background-color: transparent;
+  font-size: small;
+  width: auto;
+}
+.team-flow .react-flow__edge-path {
+  stroke: #333e91;
+}
+.team-flow .react-flow__handle {
+  border: 1px solid #333e91;
+  background-color: #333e91;
+}
+.team-flow .react-flow__panel {
+  display: none;
+}

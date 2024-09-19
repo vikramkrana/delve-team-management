@@ -1,115 +1,81 @@
-import Image from "next/image";
-import localFont from "next/font/local";
-
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import React, { useEffect, useState } from "react";
+import FlowChart from "../components/FlowChart";
+import Sidebar from "../components/Sidebar";
+import Navigation from "@/components/Navigation";
 
 export default function Home() {
-  return (
-    <div
-      className={`${geistSans.variable} ${geistMono.variable} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/pages/index.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [selectedNode, setSelectedNode] = useState(null);
+  const [selectedNodeId, setSelectedNodeId] = useState(null); // Manage selected node ID in Home
+  const [nodes, setNodes] = useState([]);
+  const [edges, setEdges] = useState([]);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch("/api/nodes"); // Fetching data from the API
+      const data = await response.json();
+
+      const nodesWithPosition = data.nodes.map((node, index) => ({
+        ...node,
+        position: node.position || { x: index * 100, y: index * 100 }, // assign default if position is missing
+      }));
+
+      setNodes(nodesWithPosition);
+      setEdges(data.edges);
+    };
+    fetchData();
+  }, []); 
+
+  // Update the node data when the form is submitted
+  const handleUpdateNode = (id, formData) => {
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id.toString() === id.toString()) {
+          return {
+            ...node,
+            about: {
+              ...node.about,
+              ...formData,
+            }, 
+          };
+        }
+        return node;
+      })
+    );
+  };
+
+  const handleNodeSelect = (node) => {
+    setSelectedNode(node);
+    setSelectedNodeId(node.id); // Track the selected node ID
+  };
+
+  return (
+    <div className="flex flex-col bg-[#07070a] h-screen">
+      <Navigation />
+      <div className="flex h-[calc(100vh-70px)]">
+        <div
+          className={`transition-all ease-in-out duration-1000  ${
+            selectedNode ? "w-full" : "w-full"
+          }`}
+        >
+          <FlowChart
+            key={selectedNode ? selectedNode.id : "flowchart"} // Forces re-render on selectedNode change
+            onNodeSelect={handleNodeSelect}
+            initialNodes={nodes}
+            initialEdges={edges}
+            selectedNodeId={selectedNodeId} // Pass selected node ID
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {selectedNode && (
+          <div className="relative w-full xl:w-1/2 transition-all ease-in-out duration-1000">
+            <Sidebar
+              selectedNode={selectedNode}
+              setSelectedNode={setSelectedNode}
+              onUpdateNode={handleUpdateNode}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
