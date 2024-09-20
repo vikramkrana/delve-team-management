@@ -97,7 +97,7 @@ function Navigation() {
                 src="/assets/logo.png"
                 alt="Your Company"
               />
-              <p className="font-extrabold text-4xl">Delve</p>
+              <p className="font-extrabold text-4xl text-white">Delve</p>
             </div>
 
             {/* Desktop Menu Links */}
